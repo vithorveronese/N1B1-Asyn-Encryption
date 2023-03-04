@@ -1,42 +1,28 @@
-import secrets
+import time
+import Helper
 
-def is_prime(n, k=40):
-    """
-    Miller-Rabin primality test.
-    """
-    if n % 2 == 0:
-        return False
+start_time = time.time()     
 
-    r = 0
-    s = n - 1
-    while s % 2 == 0:
-        r += 1
-        s //= 2
+p = Helper.generatePrime()
+print("")
+print(p)
+print("")
+q = Helper.generatePrime()
+print(q)
+print("")
 
-    for _ in range(k):
-        a = secrets.randbelow(n - 3) + 2
-        x = pow(a, s, n)
-        if x == 1 or x == n - 1:
-            continue
-        for _ in range(r - 1):
-            x = pow(x, 2, n)
-            if x == n - 1:
-                break
-        else:
-            return False
+totient = Helper.generateTotient(p, q)
+print(totient)
+print("")
+e = Helper.generateE(totient)
+print(e)
+print("")
+print(e < totient)
+d = Helper.generateD(e, totient)
+print("")
+print(d)
+print(d*e%totient)
 
-    return True
-
-def generate_prime():
-    """
-    Generates a random prime number with 2048 bits.
-    """
-    while True:
-        n = secrets.randbits(2048)
-        if n % 2 == 0:
-            n += 1
-        if is_prime(n):
-            return n
-        
-p = generate_prime()
-q = generate_prime()
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"Elapsed time: {elapsed_time:.2f} seconds")
