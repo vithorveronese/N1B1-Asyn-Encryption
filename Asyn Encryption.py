@@ -1,28 +1,49 @@
 import time
 import Helper
+import sys
 
-start_time = time.time()     
+start_time = time.time()
 
+def saveBackup(fileContents, encrypt):
+    newName =""
+    if (encrypt):
+        newName = "encrypt.txt"
+    else:
+        newName = "decrypt.txt"
+    
+    backup = open(newName, "w")
+    backup.write(fileContents)
+    backup.close()
+
+def caesarCipher(oldContent, ed, n):
+    newContent = ""
+    for char in oldContent:
+        asciiNumber = pow(ord(char), ed, n)
+        newChar = chr(asciiNumber)
+        newContent += newChar
+    return newContent
+    
 p = Helper.generatePrime()
-print("")
-print(p)
-print("")
 q = Helper.generatePrime()
-print(q)
-print("")
-
+n = Helper.generateN(p, q)
 totient = Helper.generateTotient(p, q)
-print(totient)
-print("")
 e = Helper.generateE(totient)
-print(e)
-print("")
-print(e < totient)
 d = Helper.generateD(e, totient)
-print("")
-print(d)
-print(d*e%totient)
 
-end_time = time.time()
-elapsed_time = end_time - start_time
-print(f"Elapsed time: {elapsed_time:.2f} seconds")
+cryptKey = pow(p,e,n)
+saveBackup(str(cryptKey), True)
+decryptKey = pow(cryptKey, d, n)
+saveBackup(str(decryptKey), False)
+
+originalText = "Fábio Henrique Cabrini"
+print("")
+print("Original txt => " + originalText)
+
+cryptedText = caesarCipher(originalText, e, n)
+print("")
+print("Changed txt => " + cryptedText)
+
+decryptedText = caesarCipher(cryptedText, d, n)
+print("")
+print("decryptedText => " + decryptedText)
+

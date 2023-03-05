@@ -33,7 +33,7 @@ def generatePrime():
     Generates a random prime number with 2048 bits.
     """
     while True:
-        n = secrets.randbits(2048)
+        n = secrets.randbits(5)
         if n % 2 == 0:
             n += 1
         if isPrime(n):
@@ -54,3 +54,6 @@ def generateD(e, totient):
 
 def generateTotient(p, q):
     return (p-1)*(q-1)
+
+def generateN(p, q):
+    return p * q
