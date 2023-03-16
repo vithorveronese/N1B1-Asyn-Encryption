@@ -33,7 +33,7 @@ def generatePrime():
     Generates a random prime number with 2048 bits.
     """
     while True:
-        n = secrets.randbits(5)
+        n = secrets.randbits(4096)
         if n % 2 == 0:
             n += 1
         if isPrime(n):

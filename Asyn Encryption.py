@@ -1,49 +1,59 @@
-import time
 import Helper
-import sys
+import threading
 
-start_time = time.time()
 
-def saveBackup(fileContents, encrypt):
-    newName =""
-    if (encrypt):
-        newName = "encrypt.txt"
-    else:
-        newName = "decrypt.txt"
-    
-    backup = open(newName, "w")
-    backup.write(fileContents)
-    backup.close()
+class NumberGenerator:
+    def __init__(self):
+        self.result = None
 
-def caesarCipher(oldContent, ed, n):
-    newContent = ""
-    for char in oldContent:
-        asciiNumber = pow(ord(char), ed, n)
-        newChar = chr(asciiNumber)
-        newContent += newChar
-    return newContent
-    
-p = Helper.generatePrime()
+    def generateNumber(self):
+        # Generate a number here
+        self.result = Helper.generatePrime()
+
+    def get_result(self):
+        return self.result
+
+def worker(obj):
+    """Thread worker function"""
+    obj.generateNumber()
+
+pGenerator = NumberGenerator()
+# qGenerator = NumberGenerator()
+
+# Create a new thread and start it
+threadP = threading.Thread(target=worker, args=(pGenerator,))
+# threadQ = threading.Thread(target=worker, args=(qGenerator,))
+threadP.start()
+# threadQ.start()
+
+# Wait for the thread to finish
+
+# threadQ.join()
+        
+
+# q = qGenerator.get_result()
+
+#p = Helper.generatePrime()
+
+print("")
 q = Helper.generatePrime()
+threadP.join()
+p = pGenerator.get_result()
+print(p)
+print(q)
+print("")
 n = Helper.generateN(p, q)
 totient = Helper.generateTotient(p, q)
 e = Helper.generateE(totient)
 d = Helper.generateD(e, totient)
 
-cryptKey = pow(p,e,n)
-saveBackup(str(cryptKey), True)
-decryptKey = pow(cryptKey, d, n)
-saveBackup(str(decryptKey), False)
-
 originalText = "Fábio Henrique Cabrini"
 print("")
 print("Original txt => " + originalText)
-
-cryptedText = caesarCipher(originalText, e, n)
 print("")
-print("Changed txt => " + cryptedText)
-
-decryptedText = caesarCipher(cryptedText, d, n)
+cryptedText = pow(int.from_bytes(originalText.encode(), byteorder='big'), e, n)
+print("Crypted text => " + cryptedText)
 print("")
-print("decryptedText => " + decryptedText)
+decryptedText = int.to_bytes(pow(cryptedText, d, n), length=(cryptedText.bit_length() // 8) + 1, byteorder='big').decode()
+print("decrypted text => " + decryptedText)
 
