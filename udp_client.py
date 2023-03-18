@@ -1,12 +1,38 @@
 import socket
-msgFromClient       = "Hello UDP Server"
-bytesToSend         = str.encode(msgFromClient)
+import AsynEncryption
+import math
+import pickle
+
+encryptionKeys = AsynEncryption.generateKeys()
+requestKeys = str.encode('Requesting server public key' )
+msgFromClient = None
+bufferSize          = 4096
+privateKey = encryptionKeys[0]
+publicKey = encryptionKeys[1]
 serverAddressPort   = ("127.0.0.1", 20001)
-bufferSize          = 1024
 # Create a UDP socket at client side
 UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-# Send to server using created UDP socket
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-msgFromServer = UDPClientSocket.recvfrom(bufferSize)
-msg = str(msgFromServer[0],"utf-8")
-print('Message from server: ',msg)
+requestData = pickle.dumps((requestKeys, publicKey))
+UDPClientSocket.sendto(requestData, serverAddressPort)
+data1, server_address = UDPClientSocket.recvfrom(bufferSize)
+firstServerMessage, serverKey = pickle.loads(data1)
+print(firstServerMessage)
+print('')
+print('server public key => ', serverKey)
+
+while (msgFromClient != 'exit'):
+    msgFromClient       = input("\nDigite sua mensagem: ")
+    encryptedMessage = AsynEncryption.encryptMessage(msgFromClient, serverKey)
+    numberOfBytes = math.ceil(encryptedMessage.bit_length()/8)
+    bytesToSend         = encryptedMessage.to_bytes(numberOfBytes, byteorder='big')
+    #data = pickle.dumps((bytesToSend, publicKey))
+
+    # Send to server using created UDP socket
+    UDPClientSocket.sendto(bytesToSend, serverAddressPort)
+    serverData, clientAddress = UDPClientSocket.recvfrom(bufferSize)
+    cryptedMessage = int.from_bytes(serverData, byteorder='big')
+    decryptedMessage = AsynEncryption.decryptMessage(cryptedMessage, privateKey)
+    print('')
+    print('Crypted Message from server: ',cryptedMessage)
+    print('')
+    print('Decrypted Message from server: ',decryptedMessage)
