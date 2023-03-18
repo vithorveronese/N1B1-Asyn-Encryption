@@ -6,8 +6,7 @@ def generateE(phi_n):
         e = secrets.randbelow(phi_n - 1) + 1
         if math.gcd(e, phi_n) == 1:
             return e
-        
-   
+           
 def generateD(e, totient):
     return pow(e, -1, totient)
 
