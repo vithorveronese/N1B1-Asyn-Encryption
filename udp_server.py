@@ -1,3 +1,8 @@
+# Heitor
+# Lucas
+# Rafael
+# Vithor
+
 import socket
 import pickle
 import AsynEncryption
